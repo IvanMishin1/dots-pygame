@@ -9,6 +9,14 @@ padding = 70
 step = (screen_size - 2 * padding) / grid_size
 blueTurn = True
 
+color_blue = (0,0,255)
+color_red = (255,0,0)
+
+score ={
+    'B': 0,
+    'R': 0,
+}
+
 grid = []
 for _ in range(grid_size + 1):
     grid.append([])
@@ -17,6 +25,7 @@ for _ in range(grid_size + 1):
 
 captured = []
 screen = pygame.display.set_mode((screen_size,screen_size),pygame.SRCALPHA)
+font = pygame.font.Font(pygame.font.get_default_font(), 40)
 
 pygame.display.set_caption("Dots")
 
@@ -48,20 +57,26 @@ def draw_points():
     for y in range(grid_size +1):
         for x in range(grid_size +1):
             if grid[y][x] == "R":
-                pygame.draw.circle(screen, (255, 0, 0), (padding + x * step, padding + y * step), 7)
+                pygame.draw.circle(screen, color_red, (padding + x * step, padding + y * step), 7)
             elif grid[y][x] == "r":
-                pygame.draw.circle(screen, (160, 0, 0), (padding + x * step, padding + y * step), 7)
+                pygame.draw.circle(screen, color_red, (padding + x * step, padding + y * step), 7)
             elif grid[y][x] == "B":
-                pygame.draw.circle(screen, (0, 0, 255), (padding + x * step, padding + y * step), 7)
+                pygame.draw.circle(screen, color_blue, (padding + x * step, padding + y * step), 7)
             elif grid[y][x] == "b":
-                pygame.draw.circle(screen, (0, 0, 160), (padding + x * step, padding + y * step), 7)
+                pygame.draw.circle(screen, color_blue, (padding + x * step, padding + y * step), 7)
+
+def draw_score():
+    global score
+    text_surface = font.render(str(score["B"]), True, color_blue)
+    screen.blit(text_surface, text_surface.get_rect(center=(screen_size/2 - screen_size/6, padding/2)))
+    text_surface = font.render(str(score["R"]), True, color_red)
+    screen.blit(text_surface, text_surface.get_rect(center=(screen_size/2 + screen_size/6, padding/2)))
 
 def is_occupied(x,y):
     return grid[y][x] != " "
 
-def capture(row, col, g, capturer_color):
-    for i in range(len(row)):
-        grid[row[i]][col[i]] = str(grid[row[i]][col[i]]).lower()
+def capture(row, col, g, capturer_color, captured_color):
+    global score
     rows = len(g)
     cols = len(g[0])
     a_pos = (row[0], col[0])
@@ -78,6 +93,18 @@ def capture(row, col, g, capturer_color):
             if 0 <= nr < rows and 0 <= nc < cols and (nr, nc) not in enclosed and g[nr][nc] != capturer_color:
                 enclosed.add((nr, nc))
                 queue.append((nr, nc))
+
+    # Update score for recaptured points
+    for i in enclosed:
+        if grid[i[0]][i[1]] == capturer_color.lower():
+            score[captured_color] -= 1
+
+    # Make newly captured points inactive
+    for i in range(len(row)):
+        if grid[row[i]][col[i]] == captured_color:
+            grid[row[i]][col[i]] = str(grid[row[i]][col[i]]).lower()
+            score[capturer_color] += 1
+
     print("ENCLOSED" + str(enclosed))
 
     # Get wall coordinates
@@ -144,7 +171,6 @@ def check_borders(capturer_color, captured_color):
             if g[i][j] == " " and grid[i][j] == captured_color and (i, j) not in visited:
                 region_rows = [i]
                 region_cols = [j]
-                
                 visited.add((i, j))
                 queue = deque([(i, j)])
                 while queue:
@@ -157,8 +183,8 @@ def check_borders(capturer_color, captured_color):
                             queue.append((ny, nx))
                             region_rows.append(ny)
                             region_cols.append(nx)
-
-                capture(region_rows, region_cols, g, capturer_color)
+                # Send all captured coordinates INCLUDING blanc spaces
+                capture(region_rows, region_cols, g, capturer_color, captured_color)
 
     #for i in g:
     #    print(i)
@@ -197,6 +223,7 @@ while True:
     draw_grid()
     draw_points()
     draw_captured()
+    draw_score()
 
     pygame.display.flip()
     clock.tick(60)
