@@ -18,9 +18,10 @@ class GameData:
         'R': 0,
     }
     grid = []
-    screen = pygame.display.set_mode((screen_size, screen_size), pygame.SRCALPHA)
+    screen = pygame.display.set_mode((screen_size, screen_size))
     font = pygame.font.Font(pygame.font.get_default_font(), 40)
     captured = []
+    last_move = None
 
 gd = GameData()
 
@@ -50,15 +51,18 @@ while True:
                 if gd.blueTurn:
                     check_borders("B","R", gd)
                     check_borders("R","B", gd)
+                    gd.last_move = (gx,gy,gd.color_blue)
                 else:
                     check_borders("R","B", gd)
                     check_borders("B","R", gd)
+                    gd.last_move = (gx,gy,gd.color_red)
                 gd.blueTurn = not gd.blueTurn
 
     draw_grid(gd)
     draw_points(gd)
     draw_captured(gd)
     draw_score(gd)
+    draw_last_move(gd)
 
     pygame.display.flip()
     clock.tick(60)

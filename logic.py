@@ -38,6 +38,9 @@ def capture(row, col, g, capturer_color, captured_color, gd):
                 wall.add((nr, nc))
     wall = list(wall)
 
+    if not wall:
+        return
+
     # Sort the coordinates in a way to draw a polygon
     sorted_coords = [wall[0]]
     for i in range(len(wall)):
