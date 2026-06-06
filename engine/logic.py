@@ -105,12 +105,5 @@ def check_borders(capturer_color, captured_color, gd):
                             queue.append((ny, nx))
                             region_rows.append(ny)
                             region_cols.append(nx)
-                # Send all captured coordinates INCLUDING blanc spaces
+                # Send all captured coordinates INCLUDING blank spaces
                 capture(region_rows, region_cols, g, capturer_color, captured_color,gd)
-
-
-def new_point(x,y, gd):
-    if gd.blueTurn:
-        gd.grid[y][x] = "B"
-    else:
-        gd.grid[y][x] = "R"

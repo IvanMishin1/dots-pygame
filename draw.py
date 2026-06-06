@@ -1,41 +1,45 @@
 import pygame
 
-def draw_grid(gd):
-    for i in range(gd.grid_size + 1):
-        p = int(gd.padding + i * gd.step)
-        pygame.draw.line(gd.screen, (0, 0, 0), (p, gd.padding), (p, gd.screen_size - gd.padding), width=1)
-        pygame.draw.line(gd.screen, (0, 0, 0), (gd.padding, p), (gd.screen_size - gd.padding, p), width=1)
+def draw_grid(gd, local):
+    for i in range(gd.GRID_SIZE + 1):
+        p = int(local.padding + i * local.step)
+        pygame.draw.line(local.screen, (0, 0, 0), (p, local.padding), (p, local.screen_size - local.padding), width=1)
+        pygame.draw.line(local.screen, (0, 0, 0), (local.padding, p), (local.screen_size - local.padding, p), width=1)
 
-def draw_captured(gd):
+def draw_captured(gd, local):
     if not gd.captured:
         return
-    overlay = pygame.Surface(gd.screen.get_size(), pygame.SRCALPHA)
+    overlay = pygame.Surface(local.screen.get_size(), pygame.SRCALPHA)
     for color_key, poly in gd.captured:
         if not poly or len(poly) < 3:
             continue
-        coords = [(int(gd.padding + c * gd.step), int(gd.padding + r * gd.step)) for r, c in poly]
+        coords = [(int(local.padding + c * local.step), int(local.padding + r * local.step)) for r, c in poly]
         color = (0, 0, 255, 128) if color_key == "B" else (255, 0, 0, 128)
         pygame.draw.polygon(overlay, color, coords)
-    gd.screen.blit(overlay, (0, 0))
+    local.screen.blit(overlay, (0, 0))
 
-def draw_points(gd):
-    for y in range(gd.grid_size +1):
-        for x in range(gd.grid_size +1):
+def draw_points(gd, local):
+    for y in range(gd.GRID_SIZE + 1):
+        for x in range(gd.GRID_SIZE + 1):
             if gd.grid[y][x] == "R":
-                pygame.draw.circle(gd.screen, gd.color_red, (gd.padding + x * gd.step, gd.padding + y * gd.step), 7)
+                pygame.draw.circle(local.screen, local.color_red, (local.padding + x * local.step, local.padding + y * local.step), 7)
             elif gd.grid[y][x] == "r":
-                pygame.draw.circle(gd.screen, gd.color_red, (gd.padding + x * gd.step, gd.padding + y * gd.step), 7)
+                pygame.draw.circle(local.screen, local.color_red, (local.padding + x * local.step, local.padding + y * local.step), 7)
             elif gd.grid[y][x] == "B":
-                pygame.draw.circle(gd.screen, gd.color_blue, (gd.padding + x * gd.step, gd.padding + y * gd.step), 7)
+                pygame.draw.circle(local.screen, local.color_blue, (local.padding + x * local.step, local.padding + y * local.step), 7)
             elif gd.grid[y][x] == "b":
-                pygame.draw.circle(gd.screen, gd.color_blue, (gd.padding + x * gd.step, gd.padding + y * gd.step), 7)
+                pygame.draw.circle(local.screen, local.color_blue, (local.padding + x * local.step, local.padding + y * local.step), 7)
 
-def draw_last_move(gd):
+def draw_last_move(gd, local):
     if not gd.last_move is None:
-        pygame.draw.circle(gd.screen, gd.last_move[2], (gd.padding + gd.last_move[0] * gd.step, gd.padding + gd.last_move[1] * gd.step), 9)
+        if gd.last_move[2] == "B":
+            color = local.color_blue
+        else:
+            color = local.color_red
+        pygame.draw.circle(local.screen, color, (local.padding + gd.last_move[0] * local.step, local.padding + gd.last_move[1] * local.step), 9)
 
-def draw_score(gd):
-    text_surface = gd.font.render(str(gd.score["B"]), True, gd.color_blue)
-    gd.screen.blit(text_surface, text_surface.get_rect(center=(gd.screen_size/2 - gd.screen_size/6, gd.padding/2)))
-    text_surface = gd.font.render(str(gd.score["R"]), True, gd.color_red)
-    gd.screen.blit(text_surface, text_surface.get_rect(center=(gd.screen_size/2 + gd.screen_size/6, gd.padding/2)))
+def draw_score(gd, local):
+    text_surface = local.font.render(str(gd.score["B"]), True, local.color_blue)
+    local.screen.blit(text_surface, text_surface.get_rect(center=(local.screen_size/2 - local.screen_size/6, local.padding/2)))
+    text_surface = local.font.render(str(gd.score["R"]), True, local.color_red)
+    local.screen.blit(text_surface, text_surface.get_rect(center=(local.screen_size/2 + local.screen_size/6, local.padding/2)))
