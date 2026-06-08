@@ -12,7 +12,7 @@ class DotsGame:
         # Game state
         self.score = {'B': 0, 'R': 0}
         self.grid = [[' ' for _ in range(self.GRID_SIZE + 1)] for _ in range(self.GRID_SIZE + 1)]
-        self.captured = []
+        self.captured_areas = []
         self.last_move = None
 
     def get_legal_moves(self):
@@ -24,7 +24,7 @@ class DotsGame:
         return legal_moves
 
     def get_captured(self):
-        return deepcopy(self.captured)
+        return deepcopy(self.captured_areas)
 
     def is_legal_move(self,x,y):
         if not (0 <= x <= len(self.grid) and 0 <= y <= len(self.grid)):

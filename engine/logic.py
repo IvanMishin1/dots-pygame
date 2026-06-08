@@ -19,8 +19,9 @@ def capture(row, col, g, capturer_color, captured_color, gd):
                 queue.append((nr, nc))
 
     # Update score for recaptured points
-    for i in enclosed:
-        if gd.grid[i[0]][i[1]] == capturer_color.lower():
+    for r, c in enclosed:
+        if gd.grid[r][c] == capturer_color.lower():
+            gd.grid[r][c] = capturer_color  # mark ownership removed
             gd.score[captured_color] -= 1
 
     # Make newly captured points inactive
@@ -42,18 +43,8 @@ def capture(row, col, g, capturer_color, captured_color, gd):
         return
 
     # Sort the coordinates in a way to draw a polygon
-    sorted_coords = [wall[0]]
-    for i in range(len(wall)):
-        for j in [(-1,-1),(-1,1),(1,-1),(1,1),(-1,0),(0,-1),(0,1),(1,0)]:
-            neighbour = (sorted_coords[-1][0] + j[0],sorted_coords[-1][1] + j[1])
-            if neighbour in sorted_coords:
-                continue
-            if neighbour in wall:
-                sorted_coords.append(neighbour)
-                break
-        if len(sorted_coords) > 2 and sorted_coords[0] == sorted_coords[-1]:
-            break
-    gd.captured.append((capturer_color, sorted_coords))
+    sorted_coords = moore_trace(wall)
+    gd.captured_areas.append((capturer_color, sorted_coords))
 
 def check_borders(capturer_color, captured_color, gd):
     # Create a copy of a grid for the fill
@@ -107,3 +98,32 @@ def check_borders(capturer_color, captured_color, gd):
                             region_cols.append(nx)
                 # Send all captured coordinates INCLUDING blank spaces
                 capture(region_rows, region_cols, g, capturer_color, captured_color,gd)
+
+def moore_trace(wall):
+    wall = set(wall)
+    start = min(wall) # Top-left point
+
+    # Clockwise directions
+    dirs = [(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]
+
+    boundary = [start]
+    current = start
+    visited = {start}
+    rev_dir_index = 0
+    while True:
+        found_next = False
+        for i in range(len(dirs)):
+            d = dirs[(rev_dir_index + i) % 8]
+            next = (current[0] + d[0], current[1] + d[1])
+            if next in wall:
+                boundary.append(next)
+                visited.add(next)
+                current = next
+                rev_dir_index = (dirs.index(d) + 5) % 8
+                found_next = True
+                break
+        if not found_next:
+            break
+        if current == start and len(boundary) > 2:
+            break
+    return boundary

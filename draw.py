@@ -7,10 +7,10 @@ def draw_grid(gd, local):
         pygame.draw.line(local.screen, (0, 0, 0), (local.padding, p), (local.screen_size - local.padding, p), width=1)
 
 def draw_captured(gd, local):
-    if not gd.captured:
+    if not gd.captured_areas:
         return
     overlay = pygame.Surface(local.screen.get_size(), pygame.SRCALPHA)
-    for color_key, poly in gd.captured:
+    for color_key, poly in gd.captured_areas:
         if not poly or len(poly) < 3:
             continue
         coords = [(int(local.padding + c * local.step), int(local.padding + r * local.step)) for r, c in poly]
