@@ -23,12 +23,12 @@ def draw_points(gd, local):
     for y in range(gd.grid_size + 1):
         for x in range(gd.grid_size + 1):
             if gd.grid[y][x].upper() in gd.player_letters:
-                pygame.draw.circle(local.screen, local.colors[gd.player_letters.index(gd.grid[y][x].upper())],(local.padding + x * local.step, local.padding + y * local.step), 7)
+                pygame.draw.circle(local.screen, local.colors[gd.player_letters.index(gd.grid[y][x].upper())],(local.padding + x * local.step, local.padding + y * local.step), local.point_size)
 
 def draw_last_move(gd, local):
     if not gd.last_move is None:
         color = local.colors[gd.player_letters.index(gd.last_move[2])]
-        pygame.draw.circle(local.screen, color, (local.padding + gd.last_move[0] * local.step, local.padding + gd.last_move[1] * local.step), 9)
+        pygame.draw.circle(local.screen, color, (local.padding + gd.last_move[0] * local.step, local.padding + gd.last_move[1] * local.step), local.new_point_size)
 
 def draw_score(gd, local):
     for i in range(gd.player_count):
