@@ -1,9 +1,11 @@
 from draw import *
-from engine.DotsGame import DotsGame
+from engine import engine
+from logic.DotsGame import DotsGame
+from engine.engine import *
 import asyncio
 import pygame
 
-GRID_SIZE = 15
+GRID_SIZE = 10
 PLAYER_COUNT = 2
 
 class LocalSettings:
@@ -31,6 +33,8 @@ async def main():
     pygame.display.set_caption("Dots")
     clock = pygame.time.Clock()
 
+    suggested_move = None # TODO: THIS IS DEBUG
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -44,7 +48,7 @@ async def main():
 
                 if gx in range(0,GRID_SIZE + 1) and gy in range(0,GRID_SIZE + 1):
                     state = state.make_move(gx,gy)
-
+                    suggested_move = engine.find_move(state, 2)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     state = DotsGame(GRID_SIZE, PLAYER_COUNT)
@@ -55,6 +59,10 @@ async def main():
         draw_captured(state, local)
         draw_score(state, local)
         draw_last_move(state, local)
+
+         # TODO: THIS IS DEBUG
+        if suggested_move is not None:
+            draw_suggested_move_debug(state, local, *suggested_move)
 
         pygame.display.flip()
         clock.tick(60)

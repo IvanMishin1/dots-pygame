@@ -1,5 +1,5 @@
 from copy import deepcopy
-from engine.logic import *
+from logic.logic import *
 
 class DotsGame:
     def __init__(self, grid_size, player_count):
@@ -56,3 +56,11 @@ class DotsGame:
         else:
             self.player_turn += 1
         return self
+
+    def get_player_dots(self, player):
+        points = []
+        for y in range(len(self.grid)):
+            for x in range(len(self.grid)):
+                if self.grid[y][x] == player:
+                    points.append((x,y))
+        return points

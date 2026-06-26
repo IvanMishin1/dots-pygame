@@ -35,3 +35,6 @@ def draw_score(gd, local):
         text_surface = local.font.render(str(gd.score[gd.player_letters[i]]), True, local.colors[i])
         local.screen.blit(text_surface, text_surface.get_rect(center=((local.screen_size - 2*local.padding)/(gd.player_count -1)  * i + local.padding, local.padding/2)))
 
+def draw_suggested_move_debug(gd, local, x,y ):
+    color = (100, 100, 100)
+    pygame.draw.circle(local.screen, color, (local.padding + x * local.step, local.padding + y * local.step), local.new_point_size)
