@@ -49,23 +49,24 @@ def capture(row, col, g, capturer_color, captured_color, gd):
 def check_borders(capturer_color, captured_color, gd):
     # Create a copy of a grid for the fill
     g = [row[:] for row in gd.grid]
+    grid_size = len(g)
 
     # Filter the grid
-    for i in range(len(g)):
-        for j in range(len(g)):
+    for i in range(grid_size):
+        for j in range(grid_size):
             if g[i][j] != capturer_color:
                 g[i][j] = " "
 
     # Create border points for fill
-    for k in range(len(g)):
-        for r, c in [(0, k), (len(g) - 1, k), (k, 0), (k, len(g) - 1)]:
+    for k in range(grid_size):
+        for r, c in [(0, k), (grid_size - 1, k), (k, 0), (k, grid_size - 1)]:
             if g[r][c] == " ":
                 g[r][c] = "*"
 
     # Start the fill
     queue = deque()
-    for i in range(len(g)):
-        for j in range(len(g[i])):
+    for i in range(grid_size):
+        for j in range(grid_size):
             if g[i][j] == "*":
                 queue.append((i, j))
     while queue:
@@ -73,14 +74,15 @@ def check_borders(capturer_color, captured_color, gd):
         # Check all 4 neighbors
         for dy, dx in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
             ny, nx = y + dy, x + dx
-            if 0 <= ny < len(g) and 0 <= nx < len(g[ny]) and g[ny][nx] == " ":
+            if 0 <= ny < grid_size and 0 <= nx < len(g[ny]) and g[ny][nx] == " ":
                 g[ny][nx] = "*"
+
                 queue.append((ny, nx))
 
     # Check for captures
     visited = set()
-    for i in range(len(g)):
-        for j in range(len(g)):
+    for i in range(grid_size):
+        for j in range(grid_size):
             if g[i][j] == " " and gd.grid[i][j] == captured_color and (i, j) not in visited:
                 region_rows = [i]
                 region_cols = [j]
@@ -90,7 +92,7 @@ def check_borders(capturer_color, captured_color, gd):
                     y, x = queue.popleft()
                     for dy, dx in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                         ny, nx = y + dy, x + dx
-                        if 0 <= ny < len(g) and 0 <= nx < len(g[ny]) and g[ny][nx] == " " and (ny, nx) not in visited:
+                        if 0 <= ny < grid_size and 0 <= nx < len(g[ny]) and g[ny][nx] == " " and (ny, nx) not in visited:
                             g[ny][nx] = "*"
                             visited.add((ny, nx))
                             queue.append((ny, nx))

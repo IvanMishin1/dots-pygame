@@ -15,31 +15,27 @@ class DotsGame:
         self.captured_areas = []
         self.last_move = None
 
-    def get_legal_moves(self):
-        legal_moves = []
-        for y in range(len(self.grid)):
-            for x in range(len(self.grid)):
-                if self.grid[y][x] == " ":
-                    legal_moves.append((x,y))
-        return legal_moves
+        # Helper variables
+        self.legal_moves = [(x,y) for y in range(grid_size + 1) for x in range(grid_size + 1)]
+        self.player_moves = {self.player_letters[n]: [] for n in range(self.player_count)}
 
     def get_captured(self):
-        return deepcopy(self.captured_areas)
+        return self.captured_areas.copy()
 
-    def is_legal_move(self,x,y):
-        if not (0 <= x <= len(self.grid) and 0 <= y <= len(self.grid)):
-            return False
-        if not self.grid[y][x] == " ":
-            return False
-        return True
+    def get_legal_moves(self):
+        return self.legal_moves.copy()
 
     def make_move(self, x, y):
-        if not self.is_legal_move(x,y):
+        if not (x,y) in self.legal_moves:
+            print((x,y), "not in", self.legal_moves)
             print("Illegal Move", x,y)
             return self
 
         self.grid[y][x] = self.player_letters[self.player_turn]
         self.last_move = (x, y, self.player_letters[self.player_turn])
+        self.player_moves[self.player_letters[self.player_turn]].append((x,y))
+        self.legal_moves.remove((x,y))
+
 
         # Regular captures
         for i in range(self.player_count):
@@ -57,10 +53,19 @@ class DotsGame:
             self.player_turn += 1
         return self
 
-    def get_player_dots(self, player):
-        points = []
-        for y in range(len(self.grid)):
-            for x in range(len(self.grid)):
-                if self.grid[y][x] == player:
-                    points.append((x,y))
-        return points
+    def make_copy(self):
+        cp = DotsGame.__new__(DotsGame)
+
+        cp.player_count = self.player_count
+        cp.player_turn = self.player_turn
+        cp.grid_size = self.grid_size
+
+        cp.player_letters = self.player_letters[:]  # list copy
+        cp.score = self.score.copy()  # dict copy
+        cp.grid = [row[:] for row in self.grid]  # 2D list copy
+        cp.captured_areas = deepcopy(self.captured_areas)
+        cp.last_move = self.last_move  # tuple/None, immutable
+
+        cp.legal_moves = self.legal_moves.copy()
+        cp.player_moves = {k: v.copy() for k, v in self.player_moves.items()}
+        return cp
