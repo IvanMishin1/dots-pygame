@@ -27,8 +27,6 @@ class DotsGame:
 
     def make_move(self, x, y):
         if not (x,y) in self.legal_moves:
-            print((x,y), "not in", self.legal_moves)
-            print("Illegal Move", x,y)
             return self
 
         self.grid[y][x] = self.player_letters[self.player_turn]

@@ -1,11 +1,10 @@
 from draw import *
 from engine import engine
 from logic.DotsGame import DotsGame
-from engine.engine import *
 import asyncio
 import pygame
 
-GRID_SIZE = 10
+GRID_SIZE = 5
 PLAYER_COUNT = 2
 
 class LocalSettings:
@@ -25,17 +24,28 @@ class LocalSettings:
         self.screen = pygame.display.set_mode((self.screen_size, self.screen_size))
         self.font = pygame.font.Font(pygame.font.get_default_font(), 40)
 
-async def main():
+        self.is_pvp = True
+
+async def main(PLAYER_COUNT, GRID_SIZE):
     pygame.init()
 
-    state = DotsGame(GRID_SIZE, PLAYER_COUNT)
     local = LocalSettings(GRID_SIZE)
+    if PLAYER_COUNT == 1:
+        local.is_pvp = False
+        PLAYER_COUNT += 1
+
+    state = DotsGame(GRID_SIZE, PLAYER_COUNT)
     pygame.display.set_caption("Dots")
     clock = pygame.time.Clock()
 
+
     suggested_move = None # TODO: THIS IS DEBUG
 
+
     while True:
+        #move = engine.find_move(state, 2)
+        #if not move is None:
+        #    state.make_move(*engine.find_move(state, 2))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -48,7 +58,9 @@ async def main():
 
                 if gx in range(0,GRID_SIZE + 1) and gy in range(0,GRID_SIZE + 1):
                     state = state.make_move(gx,gy)
-                    suggested_move = engine.find_move(state, 2)
+                    if not local.is_pvp:
+                        suggested_move = engine.find_move(state, 2)
+                        state = state.make_move(*suggested_move)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     state = DotsGame(GRID_SIZE, PLAYER_COUNT)
@@ -60,12 +72,8 @@ async def main():
         draw_score(state, local)
         draw_last_move(state, local)
 
-         # TODO: THIS IS DEBUG
-        if suggested_move is not None:
-            draw_suggested_move_debug(state, local, *suggested_move)
-
         pygame.display.flip()
         clock.tick(60)
         await asyncio.sleep(0)
 
-asyncio.run(main())
+#asyncio.run(main(PLAYER_COUNT, GRID_SIZE))

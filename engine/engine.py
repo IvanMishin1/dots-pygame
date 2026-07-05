@@ -1,17 +1,13 @@
 import random
 
-from logic.DotsGame import *
-from copy import deepcopy
 from collections import deque
 import numpy as np
-
 
 # Evaluates the current position based on the current score and the id of the player whose turn it is to move
 def evaluate_pos(gd, player_letter):
     score = 0
     opponent_letter = next(p for p in gd.score if p != player_letter)
     score += gd.score[player_letter] - gd.score[opponent_letter]
-
     points = gd.player_moves[player_letter]
     arr = np.asarray(points, dtype=float)
     if arr.ndim == 2 and arr.shape[1] == 2 and arr.shape[0] >= 2:
@@ -50,7 +46,10 @@ def reasonable_moves(gd, max_dist=2):
                         dist[(nx, ny)] = d + 1
                         near.add((nx, ny))
                         queue.append(((nx, ny), d + 1))
-    return list(set(gd.legal_moves) & near)
+    reasonable_moves = list(set(gd.legal_moves) & near)
+    if gd.last_move is not None:
+        reasonable_moves.sort(key=lambda p: (p[0] - gd.last_move[0]) ** 2 + (p[1] - gd.last_move[1]) ** 2)
+    return reasonable_moves
 
 def minimax(gd, depth, is_maximizing_player, player_letter, alpha, beta):
     moves = reasonable_moves(gd)
@@ -81,20 +80,17 @@ def minimax(gd, depth, is_maximizing_player, player_letter, alpha, beta):
                 break
         return min_eval
 
-def find_move(gd, depth = 3):
+def find_move(gd, depth = 4):
     player_letter = gd.player_letters[gd.player_turn]
-
 
     # Check if any moves exist
     moves = reasonable_moves(gd)
+
+    if gd.last_move is None:
+        return random.choice(moves)
+
     if not moves:
         return None
-
-    # TODO: REMOVE THIS DEBUG
-    if player_letter == "R":
-        depth = 4
-    else:
-        return random.choice(moves)
 
     best_score = float('-inf')
     best_move = None

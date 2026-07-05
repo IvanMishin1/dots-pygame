@@ -1,8 +1,7 @@
 from collections import deque
 
-def capture(row, col, g, capturer_color, captured_color, gd):
-    rows = len(g)
-    cols = len(g[0])
+def capture(row, col, capturer_color, captured_color, gd):
+    grid_size = len(gd.grid)
     a_pos = (row[0], col[0])
 
     enclosed = set()
@@ -14,7 +13,7 @@ def capture(row, col, g, capturer_color, captured_color, gd):
         r, c = queue.popleft()
         for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
             nr, nc = r + dr, c + dc
-            if 0 <= nr < rows and 0 <= nc < cols and (nr, nc) not in enclosed and g[nr][nc] != capturer_color:
+            if 0 <= nr < grid_size and 0 <= nc < grid_size and (nr, nc) not in enclosed and gd.grid[nr][nc] != capturer_color:
                 enclosed.add((nr, nc))
                 queue.append((nr, nc))
 
@@ -35,7 +34,7 @@ def capture(row, col, g, capturer_color, captured_color, gd):
     for r, c in enclosed:
         for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
             nr, nc = r + dr, c + dc
-            if 0 <= nr < rows and 0 <= nc < cols and g[nr][nc] == capturer_color:
+            if 0 <= nr < grid_size and 0 <= nc < grid_size and gd.grid[nr][nc] == capturer_color:
                 wall.add((nr, nc))
     wall = list(wall)
 
@@ -48,58 +47,51 @@ def capture(row, col, g, capturer_color, captured_color, gd):
 
 def check_borders(capturer_color, captured_color, gd):
     # Create a copy of a grid for the fill
-    g = [row[:] for row in gd.grid]
-    grid_size = len(g)
-
-    # Filter the grid
-    for i in range(grid_size):
-        for j in range(grid_size):
-            if g[i][j] != capturer_color:
-                g[i][j] = " "
+    #g = [row[:] for row in gd.grid]
+    grid_size = len(gd.grid)
+    visited_outside = set()
 
     # Create border points for fill
     for k in range(grid_size):
         for r, c in [(0, k), (grid_size - 1, k), (k, 0), (k, grid_size - 1)]:
-            if g[r][c] == " ":
-                g[r][c] = "*"
+            if gd.grid[r][c] != capturer_color:
+                visited_outside.add((r,c))
 
     # Start the fill
     queue = deque()
     for i in range(grid_size):
         for j in range(grid_size):
-            if g[i][j] == "*":
+            if (i,j) in visited_outside:
                 queue.append((i, j))
     while queue:
         y, x = queue.popleft()
         # Check all 4 neighbors
         for dy, dx in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
             ny, nx = y + dy, x + dx
-            if 0 <= ny < grid_size and 0 <= nx < len(g[ny]) and g[ny][nx] == " ":
-                g[ny][nx] = "*"
-
+            if 0 <= ny < grid_size and 0 <= nx < grid_size and (ny, nx) not in visited_outside and gd.grid[ny][nx] != capturer_color:
+                visited_outside.add((ny,nx))
                 queue.append((ny, nx))
 
     # Check for captures
-    visited = set()
+    visited_inside = set()
     for i in range(grid_size):
         for j in range(grid_size):
-            if g[i][j] == " " and gd.grid[i][j] == captured_color and (i, j) not in visited:
+            if (not (i,j) in visited_outside) and gd.grid[i][j] == captured_color and (i, j) not in visited_inside:
                 region_rows = [i]
                 region_cols = [j]
-                visited.add((i, j))
+                visited_inside.add((i, j))
                 queue = deque([(i, j)])
                 while queue:
                     y, x = queue.popleft()
                     for dy, dx in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                         ny, nx = y + dy, x + dx
-                        if 0 <= ny < grid_size and 0 <= nx < len(g[ny]) and g[ny][nx] == " " and (ny, nx) not in visited:
-                            g[ny][nx] = "*"
-                            visited.add((ny, nx))
+                        if 0 <= ny < grid_size and 0 <= nx < grid_size and (ny,nx) not in visited_outside and (ny, nx) not in visited_inside and gd.grid[ny][nx] == captured_color:
+                            visited_inside.add((ny, nx))
                             queue.append((ny, nx))
                             region_rows.append(ny)
                             region_cols.append(nx)
                 # Send all captured coordinates INCLUDING blank spaces
-                capture(region_rows, region_cols, g, capturer_color, captured_color,gd)
+                capture(region_rows, region_cols, capturer_color, captured_color,gd)
 
 def moore_trace(wall):
     wall = set(wall)
