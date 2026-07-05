@@ -80,7 +80,7 @@ def minimax(gd, depth, is_maximizing_player, player_letter, alpha, beta):
                 break
         return min_eval
 
-def find_move(gd, depth = 4):
+def find_move(gd, depth):
     player_letter = gd.player_letters[gd.player_turn]
 
     # Check if any moves exist

@@ -43,7 +43,7 @@ main_menu.add.button("Guide", guide_menu)
 main_menu.add.button('Quit', pygame_menu.events.EXIT)
 
 
-options_menu.add.selector('Player count : ', [('1 (PvM)', 1), ('2 (PvP)', 2), ('3 (PvP)', 3), ('4 (PvP)', 4)], onchange=set_player_count)
+options_menu.add.selector('Player count : ', [('1 (PvM)', 1), ('2 (PvP)', 2), ('3 (PvP)', 3), ('4 (PvP)', 4),('5 (PvP)', 5),('6 (PvP)', 6)], onchange=set_player_count)
 options_menu.add.selector('Grid size : ', [('20*20 (Classic)', 20), ('25*25 (Large)', 25), ('15*15 (Small)', 15)], onchange=set_grid_size)
 
 options_menu.add.button('Start Game', play)
